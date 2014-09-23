@@ -1,0 +1,35 @@
+<html>
+<head>
+  <script src="/binary.js"></script>
+</head>
+<body style="background-size:cover">
+
+  <button>click me</button>
+
+  <script type="text/javascript">
+    console.log("loaded");
+    // connect to the same host this was served from
+    var client = new BinaryClient('ws://' + document.location.host);
+
+    document.querySelector("button").onclick = function() {
+      client.send("hi");
+      client.on('stream', function(stream, meta){
+
+        // collect stream data
+        var parts = [];
+        stream.on('data', function(data){
+          console.log("data received!");
+          parts.push(data);
+        });
+
+        // when finished, set it as the background image
+        stream.on('end', function(){
+          var url = (window.URL || window.webkitURL).createObjectURL(new Blob(parts));
+          document.body.style.backgroundImage = 'url(' + url + ')';
+        });
+      });
+    }
+
+  </script>
+</body>
+</html>
